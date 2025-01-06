@@ -1,0 +1,58 @@
+function [Vars, Deficit] = adjust_cycle_fmin(Vars, Inputs, Param, epsilon)
+
+assert( sum(size(Vars) == [3,1]) == 2 )
+
+T_amb  = Inputs(3);
+T_pod  = Inputs(4);
+    
+%Var Extents
+lb(1) = SatLookupTP('P','T', T_amb);
+ub(1) = 4100;
+lb(2) = 500;
+ub(2) = SatLookupTP('P','T', T_pod);
+lb(3) = 0;
+ub(3) = Inf;
+
+%
+%
+% Make Objective Function
+
+    function [Obj] = objective( Vars )
+        [x1,x2,x3,x4,x5,x6,x7,x8, Obj] = make_cycle( Vars, Inputs, Param );
+        
+        Obj = 1000*Obj'*Obj;
+    end
+%
+%
+% Make Nonlinear Constraint for T_SH
+
+    function [c,ceq] = nonlcon( Vars )
+        c   = (T_pod - SatLookupTP('T','P', Vars(2))) - Vars(3);
+        ceq = [];
+    end
+
+%
+%
+% Make Linear Constraints
+
+A = [];
+b = [];
+Aeq = [];
+beq = [];
+
+%
+% Solve the problem.
+%
+    Vars = fmincon( @objective, Vars, A,b,Aeq,beq, lb,ub, @nonlcon);
+%
+% ---
+
+%
+% Return Final Deficit
+%
+    Deficit = objective( Vars );
+%
+% ---
+
+end
+

@@ -1,0 +1,9 @@
+%loading bar
+
+function loadingbar( k, K )
+   
+    barh(k/K*100)
+    xlim([])
+    
+    drawnow;
+end

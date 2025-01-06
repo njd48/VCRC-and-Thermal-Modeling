@@ -1,0 +1,58 @@
+format compact
+format short
+clear all
+close all
+
+%Put up Inputs
+T_amb_vec = [   0 :   5 :  40 ];
+valve_vec = [ 0.6 : 0.1 : 0.9 ];
+
+I = numel(T_amb_vec);
+J = numel(valve_vec);
+
+load param_4.mat
+T_pod  = 17;     % *C
+Q_load = 2.000;  % kJ
+
+%Initialize Outputs
+Accur     = zeros(I,J);
+Props     =  cell(I,J);
+flow      = zeros(I,J);
+Evap_HT   = zeros(I,J);
+Cond_HT   = zeros(I,J);
+Compr_W   = zeros(I,J);
+NormedErr = zeros(I,J);
+
+for i = 1:I
+    for j = 1:J
+    % ----/
+    % ---/
+    % --| Supply Inputs |-----------------------------------\
+        T_amb     = T_amb_vec(i)
+        valve   
+        Inputs    = [ Q_load; valve_vec(j); T_amb_vec(i); T_pod  ];
+        Param     = [    RPM, CA ]; 
+        
+    % --| Calculate     |-----------------------------------|
+        run Solve_Cycle_Many
+        
+    % --| Record        |-----------------------------------|
+    % [P, T, h, abcissa, m_dot, Q_L, Q_H, W, Deficit]
+    % --| ------------- |-----------------------------------|
+        Accur(i,j)      = converged;
+        Props{i,j}      =[P,T,h,abcissa];
+        flow(i,j)       = m_dot;
+        Evap_HT(i,j)    = Q_L;
+        Cond_HT(i,j)    = Q_H;
+        Compr_W(i,j)    = W;
+        NormedErr(i,j)  = norm(Deficit);
+        
+    % --| ------------- |-----------------------------------/
+    % ---\
+    % ----\
+    end
+end
+
+save('SimData.mat','T_amb','valve','Accur',...
+         'Props','flow','Evap_HT','Cond_HT',...
+         'Compr_W','NormedErr')

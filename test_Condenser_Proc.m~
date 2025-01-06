@@ -1,0 +1,23 @@
+
+
+input_state = [ 3000; 500]; %[ kPa; kJ/kg ]
+strarg      = 'h';          %
+flowrate    = 1.96E-2;      %[ kg/s ]
+T_amb       = 40;           %[ *C ]
+
+
+[P, T, h, abcissa] = Condenser_Proc(input_state, strarg, flowrate, T_amb );
+
+s = 0*h;
+
+for j = 1:numel(P)
+    
+    s(j) = XR410a('s','Ph', P(j), h(j) );
+    
+end
+
+figure(1)
+plot(abcissa, T)
+
+figure(2)
+plot(T
